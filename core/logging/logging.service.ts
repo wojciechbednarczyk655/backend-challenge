@@ -1,18 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 const LOG_LEVELS = ['error', 'warn', 'log', 'info', 'debug'] as const;
-type LogLevel = (typeof LOG_LEVELS)[number];
+type TLogLevel = (typeof LOG_LEVELS)[number];
 
 @Injectable()
 export class LoggingService extends Logger {
-  private readonly logLevel: LogLevel;
+  private readonly logLevel: TLogLevel;
 
   constructor(context: string = 'App') {
     super(context);
-    this.logLevel = (process.env.LOG_LEVEL as LogLevel) || 'log';
+    this.logLevel = (process.env.LOG_LEVEL as TLogLevel) || 'log';
   }
 
-  private shouldLog(level: LogLevel): boolean {
+  private shouldLog(level: TLogLevel): boolean {
     return LOG_LEVELS.indexOf(level) <= LOG_LEVELS.indexOf(this.logLevel);
   }
 
