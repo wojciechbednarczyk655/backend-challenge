@@ -1,32 +1,46 @@
 version: '3.8'
 services:
-  gateway:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  mongo:
+    image: mongo:6
+    restart: always
     ports:
-      - '3000:3000'
-    environment:
-      - NODE_ENV=production
-    depends_on:
-      - mongo
-      - authentication
+      - 27017:27017
+    volumes:
+      - mongo_data:/data/db
+
   authentication:
     build:
       context: .
-      dockerfile: Dockerfile
-    command: npm run start:prod authentication
-    ports:
-      - '3001:3001'
+      dockerfile: Dockerfile.authentication
     environment:
-      - NODE_ENV=production
+      - AUTH_MONGO_URI=mongodb://mongo:27017/ounass-auth
+      - AUTH_PORT=3001
+      - JWT_SECRET=supersecret
     depends_on:
       - mongo
-  mongo:
-    image: mongo:latest
     ports:
-      - '27017:27017'
-    volumes:
-      - mongo-data:/data/db
+      - 3001:3001
+    networks:
+      - ounass-net
+
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    environment:
+      - GATEWAY_PORT=3000
+      - AUTH_PORT=3001
+      - JWT_SECRET=supersecret
+    depends_on:
+      - authentication
+    ports:
+      - 3000:3000
+    networks:
+      - ounass-net
+
 volumes:
-  mongo-data:
+  mongo_data:
+
+networks:
+  ounass-net:
+    driver: bridge
