@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - mongo
+      - authentication
+  authentication:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: npm run start:prod authentication
+    ports:
+      - '3001:3001'
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+volumes:
+  mongo-data:
