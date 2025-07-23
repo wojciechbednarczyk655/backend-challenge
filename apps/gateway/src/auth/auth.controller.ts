@@ -4,6 +4,7 @@ import {
   ApiOperation,
   ApiResponse,
   ApiTags,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 
 import { CreateUserDto, LoginUserDto } from '@common/dtos/create-user.dto';
@@ -17,6 +18,7 @@ import { EApiTagNames } from '../common/enums/api-tag-name.enum';
 import { EControllerNames } from '../common/enums/controller-name.enum';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { CurrentUser } from './decorators/current-user.decorator';
 
 @Controller(EControllerNames.Auth)
 @ApiTags(EApiTagNames.Auth)
@@ -30,7 +32,7 @@ export class AuthController {
   @ApiConsumes(EFormType.UrlEncoded, EFormType.Json)
   @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({ status: 201, description: 'User registered', type: UserRto })
-  async register(@Body() createUserDto: CreateUserDto) {
+  async register(@Body() createUserDto: CreateUserDto): Promise<UserRto> {
     this.logger.log(`Register attempt for username: ${createUserDto.username}`);
     const result = await this.authService.register(createUserDto);
     this.logger.log(`User registered: ${createUserDto.username}`);
@@ -40,8 +42,14 @@ export class AuthController {
   @Post(EApiEndpointNames.POSTLogin)
   @ApiConsumes(EFormType.UrlEncoded, EFormType.Json)
   @ApiOperation({ summary: 'Login a user' })
-  @ApiResponse({ status: 200, description: 'JWT token' })
-  async login(@Body() loginUserDto: LoginUserDto) {
+  @ApiResponse({
+    status: 200,
+    description: 'JWT token',
+    schema: { example: { access_token: 'jwt.token.here' } },
+  })
+  async login(
+    @Body() loginUserDto: LoginUserDto,
+  ): Promise<{ access_token: string }> {
     this.logger.log(`Login attempt for username: ${loginUserDto.username}`);
     try {
       const result = await this.authService.login(loginUserDto);
@@ -56,11 +64,12 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Get(EApiEndpointNames.GETUsers)
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({ status: 200, description: 'List of users', type: [UserRto] })
-  async getUsers() {
-    this.logger.log('User list requested');
+  async getUsers(@CurrentUser() user: any): Promise<UserRto[]> {
+    this.logger.log(`User list requested by: ${user?.username}`);
     return this.authService.getUsers();
   }
 }
