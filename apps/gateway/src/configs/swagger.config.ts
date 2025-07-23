@@ -17,7 +17,9 @@ export const SwaggerConfigInit = (app: INestApplication) => {
 export const SwaggerAuthConfig = (): SecuritySchemeObject => {
   return {
     type: 'http',
-    scheme: 'bearer',
     bearerFormat: 'JWT',
+    in: 'header',
+    scheme: 'bearer',
+    name: 'Authorization',
   };
 };

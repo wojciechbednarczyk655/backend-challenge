@@ -39,11 +39,23 @@ export class UserService {
         throw new RpcException('Username or email already exists');
       }
       const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-      const user = new this.userModel({
-        ...createUserDto,
-        password: hashedPassword,
-      });
-      const saved = await user.save();
+      let saved: User;
+      try {
+        const user = new this.userModel({
+          ...createUserDto,
+          password: hashedPassword,
+        });
+        saved = await user.save();
+      } catch (dbError) {
+        this.logger.error(
+          `MongoDB error during user save: ${dbError?.message || dbError}`,
+        );
+        throw new RpcException('Database error during registration');
+      }
+      if (!saved) {
+        this.logger.error('User was not saved to the database');
+        throw new RpcException('User was not saved');
+      }
       this.logger.log(`User registered: ${createUserDto.username}`);
       return saved;
     } catch (error) {

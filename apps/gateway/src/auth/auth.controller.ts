@@ -63,8 +63,8 @@ export class AuthController {
     }
   }
 
+  @ApiBearerAuth('JWT')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   @Get(EApiEndpointNames.GETUsers)
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({ status: 200, description: 'List of users', type: [UserRto] })

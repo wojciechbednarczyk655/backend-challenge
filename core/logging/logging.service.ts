@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, ConsoleLogger } from '@nestjs/common';
 
 const LOG_LEVELS = ['error', 'warn', 'log', 'info', 'debug'] as const;
 type TLogLevel = (typeof LOG_LEVELS)[number];
 
 @Injectable()
-export class LoggingService extends Logger {
+export class LoggingService extends ConsoleLogger {
   private readonly logLevel: TLogLevel;
 
   constructor(context: string = 'App') {
@@ -16,7 +16,11 @@ export class LoggingService extends Logger {
     return LOG_LEVELS.indexOf(level) <= LOG_LEVELS.indexOf(this.logLevel);
   }
 
-  log(message: string, context?: string): void {
+  log(message?: string, context?: string): void {
+    if (!message) {
+      console.trace('logger.log called with undefined or empty message');
+      return;
+    }
     if (this.shouldLog('log')) super.log(this.format(message), context);
   }
 
@@ -45,7 +49,7 @@ export class LoggingService extends Logger {
     const base = {
       timestamp: new Date().toISOString(),
       context: this.context,
-      message,
+      message: message ?? '',
     };
     return JSON.stringify(base);
   }
