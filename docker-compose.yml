@@ -22,6 +22,12 @@ services:
       - 3001:3001
     networks:
       - ounass-net
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3001/health']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
 
   gateway:
     build:
@@ -37,6 +43,12 @@ services:
       - 3000:3000
     networks:
       - ounass-net
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
 
 volumes:
   mongo_data:

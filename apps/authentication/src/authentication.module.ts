@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@config/index';
 import { LoggingModule } from '@core/logging/logging.module';
 
+import { HealthModule } from './health/health.module';
 import { UserModule } from './user/user.module';
 
 @Module({
@@ -18,6 +19,7 @@ import { UserModule } from './user/user.module';
       inject: [ConfigService],
     }),
     UserModule,
+    HealthModule,
   ],
   controllers: [],
   providers: [],
