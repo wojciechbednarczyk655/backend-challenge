@@ -7,9 +7,9 @@
   "license": "UNLICENSED",
   "scripts": {
     "start:gateway": "nest start gateway",
-    "start:auth": "nest start authentication",
+    "start:authentication": "nest start authentication",
     "dev:gateway": "nest start gateway --watch",
-    "dev:auth": "nest start authentication --watch",
+    "dev:authentication": "nest start authentication --watch",
     "start:all": "npm-run-all --parallel start:gateway start:authentication",
     "dev": "npm-run-all --parallel dev:gateway dev:auth",
     "build": "nest build",
